@@ -3,433 +3,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-            background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .game-container {
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        #game-board {
-            border: 2px solid #333;
-            background-color: #111;
-            display: block;
-            margin: 0 auto;
-            border-radius: 8px;
-        }
-        
-        #score {
-            font-size: 24px;
-            margin: 10px 0;
-            color: #333;
-        }
-        
-        #controls {
-            margin-top: 15px;
-        }
-        
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            margin: 5px;
-        }
-        
-        button:hover {
-            background-color: #45a049;
-        }
-        
-        #game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-        }
-        
-        #game-over h2 {
-            margin-top: 0;
-        }
-        
-        /* Virtual D-Pad Styles */
-        .d-pad-container {
-            position: relative;
-            margin-top: 20px;
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .d-pad-container {
-                display: block;
-            }
-        }
-        
-        .d-pad {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .d-pad-row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .d-pad-button {
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 2px solid #333;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .d-pad-button:hover {
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-    </style>
+    <title>Snake Game - React</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
-    <div class="game-container">
-        <h1>Snake Game</h1>
-        <p>Welcome to the Snake Game!</p>
-        <div id="score">Score: 0</div>
-        <canvas id="game-board" width="400" height="400"></canvas>
-        <div id="controls">
-            <button onclick="startGame()">Start Game</button>
-            <button onclick="togglePause()">Pause</button>
-            <button onclick="resetGame()">Reset</button>
-        </div>
-        
-        <!-- Virtual D-Pad Container -->
-        <div class="d-pad-container" id="d-pad-container">
-            <div class="d-pad">
-                <div class="d-pad-row">
-                    <div class="d-pad-button" id="up-btn">↑</div>
-                </div>
-                <div class="d-pad-row">
-                    <div class="d-pad-button" id="left-btn">←</div>
-                    <div class="d-pad-button" id="down-btn">↓</div>
-                    <div class="d-pad-button" id="right-btn">→</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="game-over">
-        <h2>Game Over!</h2>
-        <p>Your score: <span id="final-score">0</span></p>
-        <button onclick="restartGame()">Play Again</button>
-    </div>
+<body class="bg-gradient-to-br from-purple-600 to-indigo-800 min-h-screen flex justify-center items-center p-4">
+    <div id="root" class="w-full max-w-2xl"></div>
 
-    <script>
-        // Game variables
-        const canvas = document.getElementById('game-board');
-        const ctx = canvas.getContext('2d');
-        const scoreDisplay = document.getElementById('score');
-        const finalScoreDisplay = document.getElementById('final-score');
-        const gameOverScreen = document.getElementById('game-over');
-        const pauseButton = document.querySelector('#controls button:nth-child(2)');
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
         
-        const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
+        // Game constants
+        const GRID_SIZE = 20;
+        const TILE_COUNT = 20;
+        const INITIAL_SPEED = 150;
         
-        let snake = [];
-        let food = {};
-        let dx = 1; // Current horizontal direction
-        let dy = 0; // Current vertical direction
-        let score = 0;
-        let gameRunning = false;
-        let gameLoop;
-        let nextDx = 1; // Next horizontal direction (to prevent immediate reversals)
-        let nextDy = 0; // Next vertical direction (to prevent immediate reversals)
+        // Direction constants
+        const DIRECTIONS = {
+            UP: { x: 0, y: -1 },
+            DOWN: { x: 0, y: 1 },
+            LEFT: { x: -1, y: 0 },
+            RIGHT: { x: 1, y: 0 }
+        };
         
-        // Initialize game
-        function initGame() {
-            // Reset snake
-            snake = [
+        // Game component
+        function SnakeGame() {
+            const [snake, setSnake] = useState([
                 {x: 10, y: 10},
                 {x: 9, y: 10},
                 {x: 8, y: 10}
-            ];
+            ]);
             
-            // Generate first food
-            generateFood();
+            const [food, setFood] = useState({x: 15, y: 15});
+            const [direction, setDirection] = useState(DIRECTIONS.RIGHT);
+            const [nextDirection, setNextDirection] = useState(DIRECTIONS.RIGHT);
+            const [score, setScore] = useState(0);
+            const [gameRunning, setGameRunning] = useState(false);
+            const [gameOver, setGameOver] = useState(false);
+            const [speed, setSpeed] = useState(INITIAL_SPEED);
             
-            // Reset direction
-            dx = 1;
-            dy = 0;
-            nextDx = 1;
-            nextDy = 0;
+            // Generate food at random position
+            const generateFood = useCallback(() => {
+                let newFood;
+                let onSnake;
+                
+                do {
+                    onSnake = false;
+                    newFood = {
+                        x: Math.floor(Math.random() * TILE_COUNT),
+                        y: Math.floor(Math.random() * TILE_COUNT)
+                    };
+                    
+                    // Check if food is on snake
+                    for (let segment of snake) {
+                        if (segment.x === newFood.x && segment.y === newFood.y) {
+                            onSnake = true;
+                            break;
+                        }
+                    }
+                } while (onSnake);
+                
+                setFood(newFood);
+            }, [snake]);
             
-            // Reset score
-            score = 0;
-            scoreDisplay.textContent = `Score: ${score}`;
-        }
-        
-        // Generate food at random position
-        function generateFood() {
-            food = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
+            // Initialize game
+            const initGame = useCallback(() => {
+                setSnake([
+                    {x: 10, y: 10},
+                    {x: 9, y: 10},
+                    {x: 8, y: 10}
+                ]);
+                
+                setDirection(DIRECTIONS.RIGHT);
+                setNextDirection(DIRECTIONS.RIGHT);
+                setScore(0);
+                setGameOver(false);
+                setSpeed(INITIAL_SPEED);
+                generateFood();
+            }, [generateFood]);
+            
+            // Handle keyboard input
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if ([37, 38, 39, 40].includes(e.keyCode)) {
+                        e.preventDefault();
+                    }
+                    
+                    switch(e.key) {
+                        case 'ArrowUp':
+                            if (direction.y === 0) {
+                                setNextDirection(DIRECTIONS.UP);
+                            }
+                            break;
+                        case 'ArrowDown':
+                            if (direction.y === 0) {
+                                setNextDirection(DIRECTIONS.DOWN);
+                            }
+                            break;
+                        case 'ArrowLeft':
+                            if (direction.x === 0) {
+                                setNextDirection(DIRECTIONS.LEFT);
+                            }
+                            break;
+                        case 'ArrowRight':
+                            if (direction.x === 0) {
+                                setNextDirection(DIRECTIONS.RIGHT);
+                            }
+                            break;
+                        case 'r':
+                        case 'R':
+                            initGame();
+                            break;
+                    }
+                };
+                
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [direction, initGame]);
+            
+            // Game loop
+            useEffect(() => {
+                if (!gameRunning || gameOver) return;
+                
+                const moveSnake = () => {
+                    setDirection(nextDirection);
+                    
+                    setSnake(prevSnake => {
+                        const head = {x: prevSnake[0].x + nextDirection.x, y: prevSnake[0].y + nextDirection.y};
+                        
+                        // Check collision with walls
+                        if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT) {
+                            setGameOver(true);
+                            setGameRunning(false);
+                            return prevSnake;
+                        }
+                        
+                        // Check collision with self
+                        for (let i = 0; i < prevSnake.length; i++) {
+                            if (head.x === prevSnake[i].x && head.y === prevSnake[i].y) {
+                                setGameOver(true);
+                                setGameRunning(false);
+                                return prevSnake;
+                            }
+                        }
+                        
+                        const newSnake = [head, ...prevSnake];
+                        
+                        // Check if food is eaten
+                        if (head.x === food.x && head.y === food.y) {
+                            setScore(prev => prev + 10);
+                            
+                            // Increase speed slightly with each food eaten
+                            if (speed > 50) {
+                                setSpeed(prev => prev - 2);
+                            }
+                            
+                            generateFood();
+                        } else {
+                            newSnake.pop();
+                        }
+                        
+                        return newSnake;
+                    });
+                };
+                
+                const gameInterval = setInterval(moveSnake, speed);
+                return () => clearInterval(gameInterval);
+            }, [gameRunning, gameOver, nextDirection, food, speed, generateFood]);
+            
+            // Start game
+            const startGame = () => {
+                if (!gameRunning) {
+                    setGameRunning(true);
+                    setGameOver(false);
+                }
             };
             
-            // Make sure food doesn't appear on snake
-            for (let segment of snake) {
-                if (segment.x === food.x && segment.y === food.y) {
-                    generateFood();
-                    break;
-                }
-            }
-        }
-        
-        // Draw game elements
-        function draw() {
-            // Clear canvas
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw snake
-            snake.forEach((segment, index) => {
-                if (index === 0) {
-                    // Snake head
-                    ctx.fillStyle = '#4CAF50';
+            // Toggle pause/resume
+            const togglePause = () => {
+                if (gameRunning) {
+                    setGameRunning(false);
                 } else {
-                    // Snake body
-                    ctx.fillStyle = '#8BC34A';
+                    if (snake.length > 0 && !gameOver) {
+                        setGameRunning(true);
+                    }
                 }
-                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 1, gridSize - 1);
-            });
+            };
             
-            // Draw food
-            ctx.fillStyle = '#FF5252';
-            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 1, gridSize - 1);
-        }
-        
-        // Move snake
-        function move() {
-            // Update direction from next values (to prevent immediate reversals)
-            dx = nextDx;
-            dy = nextDy;
-            
-            // Create new head based on current direction
-            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-            
-            // Add new head to beginning of snake array
-            snake.unshift(head);
-            
-            // Check if food is eaten
-            if (head.x === food.x && head.y === food.y) {
-                // Increase score
-                score += 10;
-                scoreDisplay.textContent = `Score: ${score}`;
-                
-                // Generate new food
-                generateFood();
-            } else {
-                // Remove tail if no food was eaten
-                snake.pop();
-            }
-        }
-        
-        // Check for collisions
-        function checkCollision() {
-            const head = snake[0];
-            
-            // Wall collision
-            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                return true;
-            }
-            
-            // Self collision
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    return true;
-                }
-            }
-            
-            return false;
-        }
-        
-        // Game loop
-        function gameUpdate() {
-            move();
-            
-            if (checkCollision()) {
-                gameOver();
-                return;
-            }
-            
-            draw();
-        }
-        
-        // Start the game
-        function startGame() {
-            if (!gameRunning) {
+            // Reset game
+            const resetGame = () => {
                 initGame();
-                gameRunning = true;
-                gameOverScreen.style.display = 'none';
-                
-                // Update button text
-                pauseButton.textContent = 'Pause';
-                
-                // Start game loop
-                clearInterval(gameLoop);
-                gameLoop = setInterval(gameUpdate, 100);
-            }
-        }
-        
-        // Toggle pause/resume
-        function togglePause() {
-            if (gameRunning) {
-                // Pause the game
-                gameRunning = false;
-                clearInterval(gameLoop);
-                pauseButton.textContent = 'Resume';
-            } else {
-                // Resume the game
-                if (snake.length > 0) {
-                    gameRunning = true;
-                    pauseButton.textContent = 'Pause';
-                    
-                    // Start game loop again
-                    clearInterval(gameLoop);
-                    gameLoop = setInterval(gameUpdate, 100);
-                }
-            }
-        }
-        
-        // Reset the game
-        function resetGame() {
-            pauseGame();
-            initGame();
-            draw();
-        }
-        
-        // Pause the game (for reset functionality)
-        function pauseGame() {
-            if (gameRunning) {
-                gameRunning = false;
-                clearInterval(gameLoop);
-                pauseButton.textContent = 'Pause';
-            }
-        }
-        
-        // Game over
-        function gameOver() {
-            pauseGame();
-            finalScoreDisplay.textContent = score;
-            gameOverScreen.style.display = 'block';
-        }
-        
-        // Restart after game over
-        function restartGame() {
-            gameOverScreen.style.display = 'none';
-            startGame();
-        }
-        
-        // Handle keyboard input
-        document.addEventListener('keydown', (e) => {
-            // Prevent arrow keys from scrolling the page
-            if ([37, 38, 39, 40].includes(e.keyCode)) {
-                e.preventDefault();
-            }
+                setGameRunning(false);
+            };
             
-            // Change direction based on key pressed
-            switch(e.key) {
-                case 'ArrowUp':
-                    if (dy === 0) { // Prevent 180-degree turns
-                        nextDx = 0;
-                        nextDy = -1;
+            // Restart after game over
+            const restartGame = () => {
+                initGame();
+                setGameRunning(true);
+            };
+            
+            // Handle virtual D-pad buttons
+            const handleDirectionChange = (newDirection) => {
+                if (
+                    (newDirection.x !== 0 && direction.x === 0) ||
+                    (newDirection.y !== 0 && direction.y === 0)
+                ) {
+                    setNextDirection(newDirection);
+                }
+            };
+            
+            // Render game cell
+            const renderCell = (x, y) => {
+                // Check if this cell is part of the snake
+                const isSnakeHead = snake[0].x === x && snake[0].y === y;
+                const isSnakeBody = snake.slice(1).some(segment => segment.x === x && segment.y === y);
+                
+                // Check if this cell is food
+                const isFood = food.x === x && food.y === y;
+                
+                let cellClass = "w-4 h-4 border border-gray-800 ";
+                
+                if (isSnakeHead) {
+                    cellClass += "bg-green-500 rounded-sm";
+                } else if (isSnakeBody) {
+                    cellClass += "bg-green-400 rounded-sm";
+                } else if (isFood) {
+                    cellClass += "bg-red-500 rounded-full animate-pulse";
+                } else {
+                    cellClass += "bg-gray-900";
+                }
+                
+                return (
+                    <div key={`${x}-${y}`} className={cellClass}></div>
+                );
+            };
+            
+            // Create game grid
+            const renderGrid = () => {
+                const grid = [];
+                
+                for (let y = 0; y < TILE_COUNT; y++) {
+                    for (let x = 0; x < TILE_COUNT; x++) {
+                        grid.push(renderCell(x, y));
                     }
-                    break;
-                case 'ArrowDown':
-                    if (dy === 0) {
-                        nextDx = 0;
-                        nextDy = 1;
-                    }
-                    break;
-                case 'ArrowLeft':
-                    if (dx === 0) {
-                        nextDx = -1;
-                        nextDy = 0;
-                    }
-                    break;
-                case 'ArrowRight':
-                    if (dx === 0) {
-                        nextDx = 1;
-                        nextDy = 0;
-                    }
-                    break;
-                case 'r':
-                case 'R':
-                    resetGame();
-                    break;
-            }
-        });
+                }
+                
+                return grid;
+            };
+            
+            // Render D-pad buttons
+            const renderDpad = () => (
+                <div className="mt-6 flex justify-center">
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="flex justify-center gap-3">
+                            <button 
+                                onClick={() => handleDirectionChange(DIRECTIONS.UP)}
+                                className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center text-xl font-bold hover:bg-white transition-all active:scale-95 shadow-lg"
+                            >
+                                ↑
+                            </button>
+                        </div>
+                        <div className="flex justify-center gap-3">
+                            <button 
+                                onClick={() => handleDirectionChange(DIRECTIONS.LEFT)}
+                                className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center text-xl font-bold hover:bg-white transition-all active:scale-95 shadow-lg"
+                            >
+                                ←
+                            </button>
+                            <button 
+                                onClick={() => handleDirectionChange(DIRECTIONS.DOWN)}
+                                className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center text-xl font-bold hover:bg-white transition-all active:scale-95 shadow-lg"
+                            >
+                                ↓
+                            </button>
+                            <button 
+                                onClick={() => handleDirectionChange(DIRECTIONS.RIGHT)}
+                                className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center text-xl font-bold hover:bg-white transition-all active:scale-95 shadow-lg"
+                            >
+                                →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+            
+            return (
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-6 w-full max-w-md">
+                    <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Snake Game</h1>
+                    <p className="text-center text-gray-600 mb-4">Use arrow keys or D-pad to control the snake</p>
+                    
+                    <div className="flex justify-between items-center mb-4">
+                        <div className="text-xl font-semibold text-gray-800">Score: {score}</div>
+                        <div className="text-sm bg-blue-100 px-3 py-1 rounded-full text-blue-800">
+                            Speed: {Math.round((INITIAL_SPEED - speed + 50) / 10)}
+                        </div>
+                    </div>
+                    
+                    <div 
+                        className="grid grid-cols-20 gap-0 border-4 border-gray-800 rounded-lg overflow-hidden mx-auto bg-gray-900"
+                        style={{ width: '400px', height: '400px' }}
+                    >
+                        {renderGrid()}
+                    </div>
+                    
+                    <div className="flex flex-wrap justify-center gap-3 mt-6">
+                        <button 
+                            onClick={startGame}
+                            disabled={gameRunning && !gameOver}
+                            className={`px-5 py-2 rounded-lg font-medium transition-all ${
+                                gameRunning && !gameOver 
+                                    ? 'bg-gray-400 cursor-not-allowed' 
+                                    : 'bg-green-500 hover:bg-green-600 text-white'
+                            }`}
+                        >
+                            {gameOver ? 'Start Game' : 'Resume'}
+                        </button>
+                        
+                        <button 
+                            onClick={togglePause}
+                            disabled={!gameRunning && !gameOver}
+                            className={`px-5 py-2 rounded-lg font-medium transition-all ${
+                                gameRunning 
+                                    ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
+                                    : 'bg-gray-400 cursor-not-allowed'
+                            }`}
+                        >
+                            {gameRunning ? 'Pause' : 'Resume'}
+                        </button>
+                        
+                        <button 
+                            onClick={resetGame}
+                            className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all"
+                        >
+                            Reset
+                        </button>
+                    </div>
+                    
+                    {/* D-pad for mobile */}
+                    <div className="md:hidden mt-6">
+                        {renderDpad()}
+                    </div>
+                    
+                    {/* Game Over Modal */}
+                    {gameOver && (
+                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-10">
+                            <div className="bg-white rounded-xl p-8 text-center max-w-sm w-full shadow-2xl transform animate-pop-in">
+                                <h2 className="text-2xl font-bold mb-3 text-gray-800">Game Over!</h2>
+                                <p className="text-lg mb-4 text-gray-600">Your score: <span className="font-bold">{score}</span></p>
+                                <button 
+                                    onClick={restartGame}
+                                    className="px-5 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all transform hover:scale-105"
+                                >
+                                    Play Again
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
         
-        // Set up virtual d-pad buttons
-        document.getElementById('up-btn').addEventListener('click', () => {
-            if (dy === 0) { // Prevent 180-degree turns
-                nextDx = 0;
-                nextDy = -1;
-            }
-        });
-        
-        document.getElementById('down-btn').addEventListener('click', () => {
-            if (dy === 0) {
-                nextDx = 0;
-                nextDy = 1;
-            }
-        });
-        
-        document.getElementById('left-btn').addEventListener('click', () => {
-            if (dx === 0) {
-                nextDx = -1;
-                nextDy = 0;
-            }
-        });
-        
-        document.getElementById('right-btn').addEventListener('click', () => {
-            if (dx === 0) {
-                nextDx = 1;
-                nextDy = 0;
-            }
-        });
-        
-        // Initialize the game board
-        initGame();
-        draw();
+        // Render the app
+        ReactDOM.render(<SnakeGame />, document.getElementById('root'));
     </script>
 </body>
 </html>
