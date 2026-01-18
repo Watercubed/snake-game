@@ -1,7 +1,5 @@
 # 🐍 Snake Game
 
-![Snake Game Screenshot](https://i.imgur.com/8KzJ5vL.png)
-
 A classic Snake game implemented in HTML, CSS, and JavaScript with modern enhancements!
 
 ## 🎮 Features
@@ -10,7 +8,6 @@ A classic Snake game implemented in HTML, CSS, and JavaScript with modern enhanc
 - **Responsive Design**: Works on both desktop and mobile devices
 - **Virtual D-Pad**: Touch-friendly controls for mobile play
 - **Keyboard Support**: Arrow keys for desktop gaming
-- **Score Tracking**: Keep track of your high scores
 - **Pause/Resume**: Take breaks during gameplay
 - **Game Over Screen**: Shows your final score with restart option
 
@@ -25,13 +22,12 @@ A classic Snake game implemented in HTML, CSS, and JavaScript with modern enhanc
 
 ## 📱 Mobile Friendly
 
-The game features a virtual D-pad for touch devices, making it easy to play on smartphones and tablets!
+The game features a virtual D-pad for touch devices, making it easy to play on smartphones!
 
 ## 🛠️ Technologies Used
 
 - HTML5 Canvas for rendering
 - CSS3 for styling and responsive design
-- JavaScript for game logic
 
 ## 🎨 Game Elements
 
@@ -47,7 +43,6 @@ Simply open `site/index.html` in any modern web browser to play!
 ## 🎯 Game Rules
 
 - Each food item gives you 10 points
-- Game speeds up as your score increases
 - Collision with walls or self ends the game
 - Press 'R' key to reset during gameplay
 
