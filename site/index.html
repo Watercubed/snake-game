@@ -4,22 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
             background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
         .game-container {
-            text-align: center;
             background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
@@ -30,74 +22,6 @@
             display: block;
             margin: 0 auto;
             border-radius: 8px;
-        }
-        
-        #score {
-            font-size: 24px;
-            margin: 10px 0;
-            color: #333;
-        }
-        
-        #controls {
-            margin-top: 15px;
-        }
-        
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            margin: 5px;
-        }
-        
-        button:hover {
-            background-color: #45a049;
-        }
-        
-        #game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-        }
-        
-        #game-over h2 {
-            margin-top: 0;
-        }
-        
-        /* Virtual D-Pad Styles */
-        .d-pad-container {
-            position: relative;
-            margin-top: 20px;
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .d-pad-container {
-                display: block;
-            }
-        }
-        
-        .d-pad {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .d-pad-row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
         }
         
         .d-pad-button {
@@ -119,25 +43,25 @@
         }
     </style>
 </head>
-<body>
-    <div class="game-container">
-        <h1>Snake Game</h1>
-        <p>Welcome to the Snake Game!</p>
-        <div id="score">Score: 0</div>
+<body class="flex justify-center items-center min-h-screen m-0 p-4">
+    <div class="game-container p-5 text-center">
+        <h1 class="text-3xl font-bold mb-2">Snake Game</h1>
+        <p class="mb-4">Welcome to the Snake Game!</p>
+        <div id="score" class="text-xl font-semibold mb-3 text-gray-800">Score: 0</div>
         <canvas id="game-board" width="400" height="400"></canvas>
-        <div id="controls">
-            <button onclick="startGame()">Start Game</button>
-            <button onclick="togglePause()">Pause</button>
-            <button onclick="resetGame()">Reset</button>
+        <div id="controls" class="mt-4">
+            <button onclick="startGame()" class="px-5 py-2 bg-green-500 text-white rounded-md mr-2 hover:bg-green-600">Start Game</button>
+            <button onclick="togglePause()" class="px-5 py-2 bg-yellow-500 text-white rounded-md mr-2 hover:bg-yellow-600">Pause</button>
+            <button onclick="resetGame()" class="px-5 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Reset</button>
         </div>
         
         <!-- Virtual D-Pad Container -->
-        <div class="d-pad-container" id="d-pad-container">
-            <div class="d-pad">
-                <div class="d-pad-row">
+        <div id="d-pad-container" class="mt-5 flex justify-center">
+            <div class="flex flex-col items-center gap-3">
+                <div class="flex justify-center gap-3">
                     <div class="d-pad-button" id="up-btn">↑</div>
                 </div>
-                <div class="d-pad-row">
+                <div class="flex justify-center gap-3">
                     <div class="d-pad-button" id="left-btn">←</div>
                     <div class="d-pad-button" id="down-btn">↓</div>
                     <div class="d-pad-button" id="right-btn">→</div>
@@ -146,10 +70,10 @@
         </div>
     </div>
     
-    <div id="game-over">
-        <h2>Game Over!</h2>
-        <p>Your score: <span id="final-score">0</span></p>
-        <button onclick="restartGame()">Play Again</button>
+    <div id="game-over" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-80 text-white p-5 rounded-lg text-center hidden">
+        <h2 class="text-2xl font-bold mb-3">Game Over!</h2>
+        <p class="mb-3">Your score: <span id="final-score" class="font-semibold">0</span></p>
+        <button onclick="restartGame()" class="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Play Again</button>
     </div>
 
     <script>
